@@ -1,0 +1,33 @@
+CAPI=2:
+
+name: AFRL:device_converter:axis_1553_decoder:1.0.0
+description: Decode 1553 bus trafic into AXIS data.
+
+filesets:
+  src:
+    files:
+      - src/axis_1553_decoder.v
+    file_type: verilogSource
+  
+  tb:
+    files:
+      - tb/tb_1553_dec.v : { file_type: verilogSource }
+    
+  dep:
+    depend:
+      - AFRL:utility:helper:1.0.0
+      
+  dep_tb:
+    depend:
+      - AFRL:simulation:axis_stimulator
+    
+targets:
+  default: &default
+    filesets: [src, dep]
+  
+  sim:
+    <<: *default
+    default_tool: icarus
+    filesets_append: [tb, dep_tb]
+    toplevel: tb_1553
+    
