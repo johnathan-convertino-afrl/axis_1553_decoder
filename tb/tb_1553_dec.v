@@ -106,7 +106,8 @@ module tb_1553;
     .s_axis_tkeep(2'b11),
     .s_axis_tlast(1'b0),
     .s_axis_tuser(tb_tuser),
-    .s_axis_tdest(1'b0)
+    .s_axis_tdest(1'b0),
+    .eof(1'b0)
   );
     
   //reset

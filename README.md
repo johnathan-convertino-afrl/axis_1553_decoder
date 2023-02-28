@@ -1,5 +1,5 @@
 # AXIS 1553 DECODER
-## MIL-STD-1553 TO AXIS
+### MIL-STD-1553 TO AXIS data, and user outputs.
 ---
 
    author: Jay Convertino   
@@ -51,7 +51,7 @@ good (1 good, 0 bad).
 * sample_rate : DEFAULT = 2000000 : sample rate of generated signal in hz (minimum 2 MHz, must be an even number, must also divide into the clock evenly).
 * bit_slice_offset : DEFAULT = 0 : after data caputre, offset bit to use from capture (only works with higher sample rates, positive only).
 * invert_data : DEFAULT = 0 : Invert data, default 0 no inversion. 1 or above is inverted data.
-* sample_select : DEFAULT = 0 : When sampling at a the clockrate, during the skip, which sample should be take. (clock_speed/sample_rate = number of samples to select from).
+* sample_select : DEFAULT = 0 : When sampling at a the clockrate, during the skip, which sample should be take. (clock_speed/sample_rate = number of samples to select from by default).
 
 ### COMPONENTS
 #### SRC
@@ -65,4 +65,5 @@ good (1 good, 0 bad).
 ### fusesoc
 
 * fusesoc_info.core created.
-* Simulation uses icarus to run date through the core and write it to a file.
+* Simulation uses icarus to run data through the core and write it to a file.
+  * timed only, no verification.
