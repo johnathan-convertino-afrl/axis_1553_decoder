@@ -1,5 +1,8 @@
 # AXIS 1553 DECODER
 ### MIL-STD-1553 TO AXIS data, and user outputs.
+
+![image](docs/manual/img/AFRL.png)
+
 ---
 
    author: Jay Convertino   
@@ -19,7 +22,13 @@
 #### Previous
   - none
 
-### Dependencies
+### DOCUMENTATION
+  For detailed usage information, please navigate to one of the following sources. They are the same, just in a different format.
+
+  - [axis_1553_decoder.pdf](docs/manual/axis_1553_decoder.pdf)
+  - [github page](https://johnathan-convertino-afrl.github.io/axis_1553_decoder/)
+
+### DEPENDENCIES
 #### Build
 
   - AFRL:utility:helper:1.0.0
@@ -28,29 +37,7 @@
 
   - AFRL:simulation:axis_stimulator
   
-### IP USAGE
-#### INSTRUCTIONS
-
-TDATA will contain the 16 bit data payload. TUSER is a 8 bit status register   
-that tells what type of data it is (command or data) and if the parity was   
-good (1 good, 0 bad).   
-
-* TUSER = {TYY,NA,D,I,P} (7 downto 0)
-  * TYY = TYPE OF DATA
-    * 000 N/A (SHOULD NEVER HAPPEN)
-    * 001 REG (NOT IMPLIMENTED)
-    * 010 DATA
-    * 100 CMD/STATUS
-  * NA = RESERVED FOR FUTURE USE.
-  * D = DELAY BEFORE DATA
-    * 1 = Delay of 4us or more before data
-    * 0 = No delay between data
-  * I = INVERT DATA
-  * P = PARITY
-    * 1 = GOOD
-    * 0 = BAD
-
-#### PARAMETERS
+### PARAMETERS
 
 * CLOCK_SPEED : DEFAULT = 20000000 : clock speed of aclk to the core in hz. (needs to be 10x of the sample rate)
 * SAMPLE_RATE : DEFAULT = 2000000 : sample rate of generated signal in hz (minimum 2 MHz, must be an even number, must also divide into the clock evenly).
@@ -67,13 +54,13 @@ good (1 good, 0 bad).
 
 * tb_1553_dec.v
   
-### fusesoc
+### FUSESOC
 
 * fusesoc_info.core created.
 * Simulation uses icarus to run data through the core and write it to a file.
   * timed only, no verification.
 
-#### TARGETS
+#### Targets
 
 * RUN WITH: (fusesoc run --target=sim VENDER:CORE:NAME:VERSION)
   - default (for IP integration builds)
