@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("tra",["Variable"],[["trans",,[["axis_1553_decoder",,,,0,"File:axis_1553_decoder.v:axis_1553_decoder.trans","SystemVerilogModule:axis_1553_decoder:trans"]]]]);

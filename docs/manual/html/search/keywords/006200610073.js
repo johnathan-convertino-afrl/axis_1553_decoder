@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("bas",["Variable"],[["base_1553_clock_rate",,[["axis_1553_decoder",,,,0,"File:axis_1553_decoder.v:axis_1553_decoder.base_1553_clock_rate","SystemVerilogModule:axis_1553_decoder:base_1553_clock_rate"]]]]);

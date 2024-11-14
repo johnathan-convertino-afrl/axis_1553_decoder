@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("par",["Variable"],[["parity_gen",,[["axis_1553_decoder",,,,0,"File:axis_1553_decoder.v:axis_1553_decoder.parity_gen","SystemVerilogModule:axis_1553_decoder:parity_gen"]]]]);

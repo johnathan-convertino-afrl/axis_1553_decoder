@@ -1,55 +1,80 @@
 //******************************************************************************
-/// @FILE    axis_1553_decoder.v
-/// @AUTHOR  JAY CONVERTINO
-/// @DATE    2021.05.24
-/// @BRIEF   AXIS MIL-STD-1553 DECODER
-/// @DETAILS This core is a MIL-STD-1553 to AXI streaming decoder.
-///          It uses the postive edge of a clock to sample data. 
-///          This restricts the core to 2 Mhz and above for a sample clock.
-///          It also features a BIT_SLICE_OFFSET that can be
-///          used to change what bit is sampled for the data reduction.
-///          TDATA will contain the 16 bit data payload. TUSER is a 8 bit 
-///          status register that tells what type of data it is (command or 
-///          data) and if the parity was good (1 good, 0 bad).
-///          TUSER = {TYY,NA,D,I,P} (7 downto 0)
-///          TYY = TYPE OF DATA
-///                * 000 N/A
-///                * 001 REG (NOT IMPLIMENTED)
-///                * 010 DATA
-///                * 100 CMD/STATUS
-///          NA  = RESERVED FOR FUTURE USE.
-///          D   = DELAY BEFORE DATA
-///                * 1 = Delay of 4us or more before data
-///                * 0 = No delay between data
-///          P   = PARITY
-///                * 1 = GOOD
-///                * 0 = BAD
-///
-/// @LICENSE MIT
-///  Copyright 2021 Jay Convertino
-///
-///  Permission is hereby granted, free of charge, to any person obtaining a copy
-///  of this software and associated documentation files (the "Software"), to 
-///  deal in the Software without restriction, including without limitation the
-///  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
-///  sell copies of the Software, and to permit persons to whom the Software is 
-///  furnished to do so, subject to the following conditions:
-///
-///  The above copyright notice and this permission notice shall be included in 
-///  all copies or substantial portions of the Software.
-///
-///  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-///  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-///  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-///  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-///  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-///  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-///  IN THE SOFTWARE.
+// file:    axis_1553_decoder.v
+//
+// author:  JAY CONVERTINO
+//
+// date:    2021/05/24
+//
+// about:   Brief
+// AXIS MIL-STD-1553 DECODER
+//
+// license: License MIT
+// Copyright 2021 Jay Convertino
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//
 //******************************************************************************
 
 `timescale 1ns/100ps
 
-//mil-std-1553 decoder capable of any clock rate at or above 2 MHz
+/*
+ * Module: axis_1553_decoder
+ *
+ * This core is a MIL-STD-1553 to AXI streaming decoder.
+ * It uses the postive edge of a clock to sample data.
+ * This restricts the core to 2 Mhz and above for a sample clock.
+ *
+ * Parameters:
+ *
+ *   CLOCK_SPEED      - This is the aclk frequency in Hz, must be 2 MHz or above.
+ *   SAMPLE_RATE      - 2 MHz or above rate that is an even divisor of CLOCK_SPEED
+ *   BIT_SLICE_OFFSET - Changes the bit that is selected for data reduction.
+ *   INVERT_DATA      - Will invert all decoded data.
+ *   SAMPLE_SELECT    - Changes the bit that is sampled for data capture.
+ *
+ * Ports:
+ *
+ *   aclk           - Clock for all logic
+ *   arstn          - Negative reset
+ *   m_axis_tdata   - Output data for 1553 decoder.
+ *   m_axis_tvalid  - When active high the output data is valid.
+ *   m_axis_tuser   - Information about the AXIS data {TYY,NA,I,P}
+ *
+ *                    Bits explained below:
+ *                  --- Code
+ *                    - TYY = TYPE OF DATA
+ *                          - 000 NA
+ *                          - 001 REG (NOT IMPLIMENTED)
+ *                          - 010 DATA
+ *                          - 100 CMD/STATUS
+ *                    - NA  = RESERVED FOR FUTURE USE.
+ *                    - D   = DELAY BEFORE DATA
+ *                          - 1 = Delay of 4us or more before data
+ *                          - 0 = No delay between data
+ *                    - P   = PARITY
+ *                          - 1 = GOOD
+ *                          - 0 = BAD
+ *                  ---
+ *
+ *   m_axis_tready  - When active high the destination device is ready for data.
+ *   diff           - Output data in TTL differential format.
+ */
 module axis_1553_decoder #(
     parameter CLOCK_SPEED = 20000000,
     parameter SAMPLE_RATE = 2000000,
@@ -58,67 +83,92 @@ module axis_1553_decoder #(
     parameter SAMPLE_SELECT = 0
   ) 
   (
-    //clock and reset
-    input aclk,
-    input arstn,
-    //master output
-    output  reg[15:0] m_axis_tdata,
-    output  reg       m_axis_tvalid,
-    output  reg[7:0]  m_axis_tuser,
+    input             aclk,
+    input             arstn,
+    output  [15:0]    m_axis_tdata,
+    output            m_axis_tvalid,
+    output  [ 7:0]    m_axis_tuser,
     input             m_axis_tready,
-    //diff input
-    input  [1:0] diff
+    input   [ 1:0]    diff
   );
   
   `include "util_helper_math.vh"
   
-  //1553 base clock rate
+  // var: base_1553_clock_rate
+  // 1553 base clock rate
   localparam integer base_1553_clock_rate = 1000000;
-  //sample rate to caputre transmission bits at
+  // var: samples_per_mhz
+  // sample rate to caputre transmission bits at
   localparam integer samples_per_mhz = SAMPLE_RATE / base_1553_clock_rate;
-  //calculate the number of cycles the clock changes per period
+  // var: cycles_per_mhz
+  // calculate the number of cycles the clock changes per period
   localparam integer cycles_per_mhz = CLOCK_SPEED / base_1553_clock_rate;
-  //delay time, 4 is for 4 us (min 1553 time)
+  // var: delay_time
+  // delay time, 4 is for 4 us (min 1553 time)
   localparam integer delay_time = cycles_per_mhz * 4;
-  //calculate the number of samples to skip
+  // var: samples_to_skip
+  // calculate the number of samples to skip
   localparam integer samples_to_skip = ((cycles_per_mhz > samples_per_mhz) ? cycles_per_mhz / samples_per_mhz : 0);
-  //SAMPLE_SELECT rounded
+  // var: round_SAMPLE_SELECT
+  // SAMPLE_SELECT rounded
   localparam integer round_SAMPLE_SELECT = ((SAMPLE_SELECT == 0) ? samples_to_skip/2 : SAMPLE_SELECT % samples_to_skip);
-  //bit rate per mhz
+  // var: bit_rate_per_mhz
+  // bit rate per mhz
   localparam integer bit_rate_per_mhz = samples_per_mhz;
+  // var: round_BIT_SLICE_OFFSET
   // pick the middle of the samples generated by default
   localparam integer round_BIT_SLICE_OFFSET = ((cycles_per_mhz > samples_per_mhz) ? ((BIT_SLICE_OFFSET == 0) ? bit_rate_per_mhz/4 : BIT_SLICE_OFFSET % bit_rate_per_mhz) : 0);
-  //sync pulse length
+  // var: sync_pulse_len
+  // sync pulse length
   localparam integer sync_pulse_len = bit_rate_per_mhz * 3;
-  //bits per transmission
+  // var: bits_per_trans
+  // bits per transmission
   localparam integer bits_per_trans = 20;
-  //sync bits per trans
+  // var: synth_bits_per_trans
+  // sync bits per trans
   localparam integer synth_bits_per_trans = (bits_per_trans*bit_rate_per_mhz);
-  // states in grey code form
+  // var: sync_cmd_stat
+  // Command sync pulse
+  localparam [sync_pulse_len-1:0]sync_cmd_stat = {{sync_pulse_len/2{1'b0}}, {sync_pulse_len/2{1'b1}}};
+  // var: sync_data
+  // Data sync pulse
+  localparam [sync_pulse_len-1:0]sync_data     = {{sync_pulse_len/2{1'b1}}, {sync_pulse_len/2{1'b0}}};
+  // var: cmd_data
+  // data tuser encode
+  localparam cmd_data = 3'b010;
+  // var: cmd_data
+  // command tuser encode
+  localparam cmd_cmnd = 3'b100;
+  // var: bit_pattern
+  // create the bit pattern. This is based on outputing data on the negative and
+  // positive. This allows the encoder to run down to 1 mhz.
+  localparam [(bit_rate_per_mhz)-1:0]bit_pattern = {{bit_rate_per_mhz/2{1'b1}}, {bit_rate_per_mhz/2{1'b0}}};
+  // var: synth_clk
+  // synth clock is the clock constructed by the repeating the bit pattern.
+  // this is intended to be a representation of the clock. Captured at a bit_rate_per_mhz of a 1mhz clock.
+  localparam [synth_bits_per_trans-1:0]synth_clk = {bits_per_trans{bit_pattern}};
+
+  // Group: State Machine
+  // Constants that makeup the decoder state machine.
+
+  // var: diff_wait
   // wait for diff        
   localparam diff_wait    = 5'h01;
+  // var: data_cap
   // data capture
   localparam data_cap     = 5'h03;
+  // var: data_reduce
   // reduce data
   localparam data_reduce  = 5'h07;
+  // var: parity_gen
   // parity generator
   localparam parity_gen   = 5'h0F;
+  // var: trans
   // transmit data
   localparam trans        = 5'h1F;
+  // var: error
   // someone made a whoops
   localparam error        = 5'h00;
-  //sync pulse
-  localparam [sync_pulse_len-1:0]sync_cmd_stat = {{sync_pulse_len/2{1'b0}}, {sync_pulse_len/2{1'b1}}};
-  localparam [sync_pulse_len-1:0]sync_data     = {{sync_pulse_len/2{1'b1}}, {sync_pulse_len/2{1'b0}}};
-  //command tuser encode
-  localparam cmd_data = 3'b010;
-  localparam cmd_cmnd = 3'b100;
-  //create the bit pattern. This is based on outputing data on the negative and
-  //positive. This allows the encoder to run down to 1 mhz.
-  localparam [(bit_rate_per_mhz)-1:0]bit_pattern = {{bit_rate_per_mhz/2{1'b1}}, {bit_rate_per_mhz/2{1'b0}}};
-  //synth clock is the clock constructed by the repeating the bit pattern. 
-  //this is intended to be a representation of the clock. Captured at a bit_rate_per_mhz of a 1mhz clock.
-  localparam [synth_bits_per_trans-1:0]synth_clk = {bits_per_trans{bit_pattern}};
   
   //for loop indexs
   integer bit_slice_index;
@@ -140,6 +190,14 @@ module axis_1553_decoder #(
   reg [clogb2(samples_to_skip):0]        skip_counter;
   reg [clogb2(delay_time)-1:0]           pause_counter;
   reg [clogb2(synth_bits_per_trans)-1:0] trans_counter;
+  //outputs
+  reg [15:0] r_m_axis_tdata;
+  reg        r_m_axis_tvalid;
+  reg [7:0]  r_m_axis_tuser;
+
+  assign m_axis_tdata   = r_m_axis_tdata;
+  assign m_axis_tvalid  = r_m_axis_tvalid;
+  assign m_axis_tuser   = r_m_axis_tuser;
   
   //pause_counter(must be 4us or more between transmit)
   always @(posedge aclk) begin

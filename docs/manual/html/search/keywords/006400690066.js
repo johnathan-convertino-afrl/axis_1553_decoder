@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("dif",["Variable"],[["diff_wait",,[["axis_1553_decoder",,,,0,"File:axis_1553_decoder.v:axis_1553_decoder.diff_wait","SystemVerilogModule:axis_1553_decoder:diff_wait"]]]]);

@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("axi",["Module","File"],[["axis_1553_decoder",,[[,,,,0,"File:axis_1553_decoder.v:axis_1553_decoder","SystemVerilogModule:axis_1553_decoder"],[,"axis_1553_decoder.v",,,1,"File:axis_1553_decoder.v:axis_1553_decoder.v"]]]]);
