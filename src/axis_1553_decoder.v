@@ -225,27 +225,27 @@ module axis_1553_decoder #(
   //axis data output
   always @(posedge aclk) begin
     if(arstn == 1'b0) begin
-      m_axis_tdata  <= 0;
-      m_axis_tvalid <= 0;
+      r_m_axis_tdata  <= 0;
+      r_m_axis_tvalid <= 0;
       m_axis_tuser  <= 0;
     end else begin
-      m_axis_tdata <= m_axis_tdata;
-      m_axis_tvalid<= m_axis_tvalid;
-      m_axis_tuser <= m_axis_tuser;
+      r_m_axis_tdata <= r_m_axis_tdata;
+      r_m_axis_tvalid<= r_m_axis_tvalid;
+      r_m_axis_tuser <= r_m_axis_tuser;
       case (state)
         //once the state machine is in transmisson state, begin data output
         trans: begin
-          m_axis_tdata  <= data;
-          m_axis_tuser  <= cmd;
-          m_axis_tvalid <= 1'b1;
+          r_m_axis_tdata  <= data;
+          r_m_axis_tuser  <= cmd;
+          r_m_axis_tvalid <= 1'b1;
         end
         //are we ready kids???? EYYY EYYY CAPTIAN....OHHHHH WHO LIVES IN A PINEAPPLE UNDER THE SEA.
         //...*cough* if we are ready, the data was captured. 0 it out to avoid duplicates.
         default: begin
           if(m_axis_tready == 1'b1) begin
-            m_axis_tdata  <= 0;
-            m_axis_tvalid <= 0;
-            m_axis_tuser  <= 0;
+            r_m_axis_tdata  <= 0;
+            r_m_axis_tvalid <= 0;
+            r_m_axis_tuser  <= 0;
           end
         end
         endcase
