@@ -227,7 +227,7 @@ module axis_1553_decoder #(
     if(arstn == 1'b0) begin
       r_m_axis_tdata  <= 0;
       r_m_axis_tvalid <= 0;
-      m_axis_tuser  <= 0;
+      r_m_axis_tuser  <= 0;
     end else begin
       r_m_axis_tdata <= r_m_axis_tdata;
       r_m_axis_tvalid<= r_m_axis_tvalid;
