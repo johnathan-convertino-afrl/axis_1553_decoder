@@ -54,7 +54,7 @@
  *   arstn          - Negative reset
  *   m_axis_tdata   - Output data for 1553 decoder.
  *   m_axis_tvalid  - When active high the output data is valid.
- *   m_axis_tuser   - Information about the AXIS data {TYY,NA,I,P}
+ *   m_axis_tuser   - Information about the AXIS data {TYY,NA,D,I,P}
  *
  *                    Bits explained below:
  *                  --- Code
@@ -67,6 +67,9 @@
  *                    - D   = DELAY BEFORE DATA
  *                          - 1 = Delay of 4us or more before data
  *                          - 0 = No delay between data
+ *                    - I   = INVERT DATA
+ *                          - 1 = INVERT
+ *                          - 0 = NORMAL
  *                    - P   = PARITY
  *                          - 1 = GOOD
  *                          - 0 = BAD

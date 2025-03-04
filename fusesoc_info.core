@@ -12,6 +12,11 @@ filesets:
   tb:
     files:
       - tb/tb_1553_dec.v : { file_type: verilogSource }
+
+  tb_cocotb:
+    files:
+      - tb/tb_cocotb.py : {file_type : user, copyto : .}
+      - tb/tb_cocotb.v : { file_type: verilogSource }
     
   dep:
     depend:
@@ -33,3 +38,51 @@ targets:
     filesets_append: [tb, dep_tb]
     toplevel: tb_1553
     
+  sim_cocotb:
+    <<: *default
+    description: Cocotb unit tests
+    flow: sim
+    flow_options:
+      tool: icarus
+      cocotb_module: tb_cocotb
+      timescale: 1ns/1ns
+      vcs_options: [-timescale=1ns/1ns]
+    filesets_append: [tb_cocotb]
+    toplevel: tb_cocotb
+    parameters:
+      - CLOCK_SPEED
+      - SAMPLE_RATE
+      - BIT_SLICE_OFFSET
+      - INVERT_DATA
+      - SAMPLE_SELECT
+
+parameters:
+  SAMPLE_SELECT:
+    datatype    : int
+    default     : 0
+    description : Offset sample capture
+    paramtype   : vlogparam
+
+  INVERT_DATA:
+    datatype    : int
+    default     : 0
+    description : Invert the output data bits
+    paramtype   : vlogparam
+
+  BIT_SLICE_OFFSET:
+    datatype    : int
+    default     : 0
+    description : Changes the bit that is selected for data reduction.
+    paramtype   : vlogparam
+
+  SAMPLE_RATE:
+    datatype    : int
+    default     : 2000000
+    description : 2 MHz or above rate that is an even divisor of CLOCK_SPEED
+    paramtype   : vlogparam
+
+  CLOCK_SPEED:
+    datatype    : int
+    default     : 200000000
+    description : This is the aclk frequency in Hz, must be 2 MHz or above.
+    paramtype   : vlogparam
