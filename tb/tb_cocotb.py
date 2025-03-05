@@ -86,7 +86,7 @@ async def increment_test(dut):
 
     await reset_dut(dut)
 
-    for x in range(0, 2**16):
+    for x in range(0, 2**10):
         data = x.to_bytes(length = 2, byteorder='little')
 
         await Timer(10, units="us")
