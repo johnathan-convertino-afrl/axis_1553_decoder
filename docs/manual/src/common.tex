@@ -64,7 +64,7 @@ TUSER = {TYY,NA,D,I,P} (7 downto 0)
   \item NA = RESERVED FOR FUTURE USE.
   \item D = DELAY ENABLED
   \begin{itemize}
-    \item 1 = 4 us delay enabled.
+    \item 1 = 4 us delay detected.
     \item 0 = no delay between transmissions.
   \end{itemize}
   \item I = INVERT DATA
@@ -184,7 +184,18 @@ iverilog is used for simple test benches for quick verification, visually, of th
 
 \subsection{cocotb}
 \par
-Future simulations will use cocotb. This feature is not yet implemented.
+To use the cocotb tests you must install the following python libraries.
+\begin{lstlisting}[language=bash]
+  $ pip install cocotb
+  $ pip install cocotbext-axi
+  $ pip install cocotbext-mil_std_1553
+\end{lstlisting}
+
+Then you must use the cocotb sim target. The targets above can be run with various bus and fifo parameters.
+
+\begin{lstlisting}[language=bash]
+  $ fusesoc run --target sim_cocotb AFRL:device_converter:axis_1553_decoder:1.0.0
+\end{lstlisting}
 
 \newpage
 
@@ -193,5 +204,5 @@ Future simulations will use cocotb. This feature is not yet implemented.
 \begin{itemize}
 \item \textbf{axis\_1553\_decoder} Interfaces AXIS to the PMOD1553.\\
 \end{itemize}
-The next sections document the module in great detail.
+The next sections document the module.
 
