@@ -5,14 +5,19 @@
 
 ---
 
-   author: Jay Convertino   
+  author: Jay Convertino   
+  
+  date: 2021.05.24  
+  
+  details: Convert MIL-STD-1553 data into a AXI stream of data of 16 data bits and 8 tuser information bits.  
+  
+  license: MIT   
    
-   date: 2021.05.24  
-   
-   details: Convert MIL-STD-1553 data into a AXI stream of data of 16 data bits and 8 tuser information bits.  
-   
-   license: MIT   
-   
+  Actions:  
+
+  [![Lint Status](../../actions/workflows/lint.yml/badge.svg)](../../actions)  
+  [![Manual Status](../../actions/workflows/manual.yml/badge.svg)](../../actions)  
+  
 ---
 
 ### Version
@@ -27,15 +32,6 @@
 
   - [axis_1553_decoder.pdf](docs/manual/axis_1553_decoder.pdf)
   - [github page](https://johnathan-convertino-afrl.github.io/axis_1553_decoder/)
-
-### DEPENDENCIES
-#### Build
-
-  - AFRL:utility:helper:1.0.0
-  
-#### Simulation
-
-  - AFRL:simulation:axis_stimulator
   
 ### PARAMETERS
 
@@ -66,5 +62,6 @@
 
 * RUN WITH: (fusesoc run --target=sim VENDER:CORE:NAME:VERSION)
   - default (for IP integration builds)
+  - lint
   - sim
   - sim_cocotb

@@ -373,6 +373,10 @@ module axis_1553_decoder #(
           p_diff        <= 2'b11;
           skip_counter  <= 0;
         end
+        default: begin
+          p_diff        <= 2'b11;
+          skip_counter  <= 0;
+        end
       endcase
     end
   end
